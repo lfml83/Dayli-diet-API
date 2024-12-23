@@ -17,16 +17,44 @@ def create_dite():
     name = data.get('name')
     description = data.get('description')
     inside_outside = data.get('inside_outside')
-    print(inside_outside)
+    
 
-    if name:
-        
+    if name and ( inside_outside==None or isinstance(inside_outside, bool)):
+
         diet = Diet(name=name,description=description,inside_outside=inside_outside)
         db.session.add(diet)
         db.session.commit()
         return jsonify({"message" : "Dieta cadastrada com sucesso"})
     
     return jsonify({"message" : "Dados incorretos"}), 400# bad request, dados invalidos
+
+@app.route('/get_meals', methods=['GET'])
+def get_meals():
+    meals=Diet.query.all()
+    meal_list =[]
+    for meal in meals:
+        meal_data = {
+            "id" : meal.id,
+            "name" : meal.name,
+            "description" : meal.description,
+            "date_time" : meal.date_time,
+            "inside_outside" : meal.inside_outside
+        }
+        meal_list.append(meal_data)
+    return jsonify(meal_list)
+
+@app.route('/get_meal/<int:meal_id>', methods=['GET'])
+def get_meal(meal_id):
+    meal = Diet.query.get(meal_id)
+    if meal:
+        return jsonify({
+            "id" : meal.id,
+            "name" : meal.name,
+            "description" : meal.description,
+            "date_time" : meal.date_time,
+            "inside_outside" : meal.inside_outside
+        })
+
 
 
 
